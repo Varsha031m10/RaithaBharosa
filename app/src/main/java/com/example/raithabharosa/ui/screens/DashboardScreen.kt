@@ -1,5 +1,6 @@
 package com.example.raithabharosa.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -9,46 +10,178 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.statusBarsPadding
+import com.example.raithabharosa.viewmodel.SowingViewModel as SowingViewModel1
+import com.google.firebase.database.FirebaseDatabase
 
+@SuppressLint("ViewModelConstructorInComposable")
 @Composable
 fun DashboardScreen(
+    language: String,
     onViewActionPlan: () -> Unit,
     onViewHistory: () -> Unit
 ) {
 
-    var moisture by remember { mutableStateOf("") }
+    val viewModel = SowingViewModel1()
+    val database = FirebaseDatabase.getInstance()
 
-    var selectedCrop by remember { mutableStateOf("Select Crop") }
-    val crops = listOf("Ragi", "Paddy", "Sugarcane")
-    var expanded by remember { mutableStateOf(false) }
+    val ref = database.getReference("MoistureData")
 
-    val moistureValue = moisture.toIntOrNull() ?: 0
-    val index = if (moistureValue > 30) 40 else 80
-    val recommendation = if (moistureValue > 30) "WAIT ❌" else "GO ✅"
-
-    val aiSuggestion = if (moistureValue > 30) {
-        "AI Suggestion: Soil too wet. Wait before sowing."
-    } else {
-        "AI Suggestion: Conditions are good. You can proceed with sowing."
+    var moisture by remember {
+        mutableStateOf("")
     }
 
-    val color = if (recommendation.contains("GO"))
-        Color(0xFF4CAF50)
-    else
-        Color.Red
+    var selectedCrop by remember {
+
+        mutableStateOf(
+
+            if (language == "KN")
+                "ಬೆಳೆ ಆಯ್ಕೆ"
+
+            else
+                "Select Crop"
+        )
+    }
+
+    val crops =
+
+        if (language == "KN") {
+
+            listOf(
+                "ರಾಗಿ",
+                "ಭತ್ತ",
+                "ಕಬ್ಬು"
+            )
+
+        } else {
+
+            listOf(
+                "Ragi",
+                "Paddy",
+                "Sugarcane"
+            )
+        }
+
+    var expanded by remember {
+        mutableStateOf(false)
+    }
+
+    // SAFE moisture value
+
+    val moistureValue =
+        moisture.toIntOrNull() ?: -1
+
+    // INDEX
+
+    val index =
+
+        if (moistureValue == -1)
+            0
+
+        else
+            viewModel.calculateIndex(moistureValue)
+
+    // RECOMMENDATION
+
+    val recommendation =
+
+        if (moistureValue == -1) {
+
+            ""
+
+        } else if (language == "KN") {
+
+            if (moistureValue > 30)
+                "ನಿಲ್ಲಿಸಿ ❌"
+
+            else
+                "ಮುಂದುವರಿಸಿ ✅"
+
+        } else {
+
+            viewModel.getRecommendation(moistureValue)
+        }
+
+    // AI SUGGESTION
+
+    val aiSuggestion =
+
+        if (moistureValue == -1) {
+
+            ""
+
+        } else if (language == "KN") {
+
+            if (moistureValue > 30)
+                "AI ಸಲಹೆ: ಮಣ್ಣು ತುಂಬಾ ತೇವವಾಗಿದೆ."
+
+            else
+                "AI ಸಲಹೆ: ಬಿತ್ತನೆಗೆ ಉತ್ತಮ ಪರಿಸ್ಥಿತಿ ಇದೆ."
+
+        } else {
+
+            viewModel.getAiSuggestion(moistureValue)
+        }
+
+    // COLOR
+
+    val color =
+
+        if (moistureValue == -1)
+            Color.Black
+
+        else if (moistureValue <= 30)
+            Color(0xFF4CAF50)
+
+        else
+            Color.Red
+
+    // LANGUAGE TEXTS
+
+    val title =
+
+        if (language == "KN")
+            "ಬಿತ್ತನೆ ಸೂಚ್ಯಂಕ"
+
+        else
+            "Sowing Index"
+
+    val moistureText =
+
+        if (language == "KN")
+            "ತೇವಾಂಶ ನಮೂದಿಸಿ"
+
+        else
+            "Enter Moisture"
+
+    val actionText =
+
+        if (language == "KN")
+            "ಕಾರ್ಯ ಯೋಜನೆ"
+
+        else
+            "View Action Plan"
+
+    val historyText =
+
+        if (language == "KN")
+            "ಇತಿಹಾಸ"
+
+        else
+            "View History"
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .statusBarsPadding()   // ✅ fixes top overlap
+            .statusBarsPadding()
             .padding(16.dp),
+
         verticalArrangement = Arrangement.Top
     ) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
         Text(
-            text = "Sowing Index",
+            text = title,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold
         )
@@ -56,26 +189,51 @@ fun DashboardScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         TextField(
+
             value = moisture,
-            onValueChange = { moisture = it },
-            label = { Text("Enter Moisture") }
+
+            onValueChange = {
+                moisture = it
+            },
+
+            label = {
+                Text(moistureText)
+            }
         )
 
         Spacer(modifier = Modifier.height(20.dp))
 
         Box {
-            Button(onClick = { expanded = true }) {
+
+            Button(
+                onClick = {
+                    expanded = true
+                }
+            ) {
+
                 Text(selectedCrop)
             }
 
             DropdownMenu(
+
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+
+                onDismissRequest = {
+                    expanded = false
+                }
+
             ) {
+
                 crops.forEach { crop ->
+
                     DropdownMenuItem(
-                        text = { Text(crop) },
+
+                        text = {
+                            Text(crop)
+                        },
+
                         onClick = {
+
                             selectedCrop = crop
                             expanded = false
                         }
@@ -100,7 +258,6 @@ fun DashboardScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-
         Text(
             text = aiSuggestion,
             fontSize = 16.sp
@@ -108,14 +265,35 @@ fun DashboardScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Button(onClick = { onViewActionPlan() }) {
-            Text("View Action Plan")
+        Button(
+            onClick = {
+
+                if (moisture.isNotEmpty()) {
+
+                    val data = mapOf(
+                        "moisture" to moisture,
+                        "crop" to selectedCrop
+                    )
+
+                    ref.push().setValue(data)
+                }
+
+                onViewActionPlan()
+            }
+        ) {
+
+            Text(actionText)
         }
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        Button(onClick = { onViewHistory() }) {
-            Text("View History")
+        Button(
+            onClick = {
+                onViewHistory()
+            }
+        ) {
+
+            Text(historyText)
         }
     }
 }

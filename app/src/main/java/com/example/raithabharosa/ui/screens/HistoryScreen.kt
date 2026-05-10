@@ -10,13 +10,43 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun HistoryScreen(onBack: () -> Unit) {
+fun HistoryScreen(
+    language: String,
+    onBack: () -> Unit
+) {
 
-    val historyList = listOf(
-        "Ragi - Good yield (2024)",
-        "Paddy - Moderate yield (2023)",
-        "Sugarcane - High yield (2022)"
-    )
+    val historyList =
+
+        if (language == "KN") {
+
+            listOf(
+                "ರಾಗಿ - ಉತ್ತಮ ಬೆಳೆ (2024)",
+                "ಭತ್ತ - ಮಧ್ಯಮ ಬೆಳೆ (2023)",
+                "ಕಬ್ಬು - ಹೆಚ್ಚಿನ ಬೆಳೆ (2022)"
+            )
+
+        } else {
+
+            listOf(
+                "Ragi - Good yield (2024)",
+                "Paddy - Moderate yield (2023)",
+                "Sugarcane - High yield (2022)"
+            )
+        }
+
+    val title =
+        if (language == "KN")
+            "ಕೃಷಿ ಇತಿಹಾಸ"
+
+        else
+            "Farming History"
+
+    val backText =
+        if (language == "KN")
+            "ಹಿಂದೆ"
+
+        else
+            "Back"
 
     Column(
 
@@ -24,24 +54,37 @@ fun HistoryScreen(onBack: () -> Unit) {
             .fillMaxSize()
             .padding(16.dp)
             .statusBarsPadding()
+
     ) {
-        Button(onClick = { onBack() }) {
-            Text("Back")
+
+        Button(
+            onClick = { onBack() }
+        ) {
+
+            Text(backText)
         }
 
         Spacer(modifier = Modifier.height(10.dp))
-        Text("Farming History", fontSize = 24.sp)
 
+        Text(
+            title,
+            fontSize = 24.sp
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         LazyColumn {
+
             items(historyList) { item ->
+
                 Card(
+
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
+
                 ) {
+
                     Text(
                         text = item,
                         modifier = Modifier.padding(16.dp)
