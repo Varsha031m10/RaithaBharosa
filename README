@@ -1,0 +1,59 @@
+# RaithaBharosa – Smart Sowing Assistant
+
+## Overview
+
+RaithaBharosa is an Android application developed using Kotlin and Jetpack Compose to help farmers make better sowing decisions using moisture analysis and AI-based suggestions.
+
+The app provides bilingual support (English & Kannada), farming recommendations, action plans, and Firebase backend integration.
+
+---
+
+## Features
+
+* Login Screen
+* Language Selection (English / Kannada)
+* Sowing Index Calculation
+* AI-based Farming Suggestions
+* 7-Day Action Plan
+* Farming History
+* Firebase Realtime Database Integration
+* MVVM Architecture
+* Jetpack Compose UI
+
+---
+
+## Technologies Used
+
+* Kotlin
+* Jetpack Compose
+* Firebase Realtime Database
+* MVVM Architecture
+* Android Studio
+
+---
+
+## Architecture
+
+UI Layer → ViewModel → Firebase/Data Layer
+
+---
+
+## Firebase Integration
+
+The app uses Firebase Realtime Database to store user moisture and crop input data.
+
+---
+
+## Future Scope
+
+* Weather API Integration
+* Room Database Integration
+* Real AI Integration using Google AI Studio
+* Advanced Crop Recommendation System
+
+---
+
+## Developed By
+
+Varsha M
+MindMatrix Internship Project
